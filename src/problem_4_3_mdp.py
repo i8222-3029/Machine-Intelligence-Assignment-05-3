@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Problem 4.3 - Formulating an MDP (3x4 delivery robot grid)."""
+"""Problem 4.4 - Formulating an MDP (3x4 delivery robot grid)."""
 
 from collections import defaultdict
 
@@ -9,10 +9,11 @@ class GridMDP:
 
     ACTIONS = ("N", "S", "E", "W")
     ACTION_TO_DELTA = {
-        "N": (1, 0),
-        "S": (-1, 0),
-        "E": (0, 1),
-        "W": (0, -1),
+        # Coordinates follow (x, y), with (1,1) at bottom-left.
+        "N": (0, 1),
+        "S": (0, -1),
+        "E": (1, 0),
+        "W": (-1, 0),
     }
     PERPENDICULAR = {
         "N": ("W", "E"),
@@ -22,24 +23,24 @@ class GridMDP:
     }
 
     def __init__(self):
-        self.rows = 3
-        self.cols = 4
+        self.x_max = 4
+        self.y_max = 3
         self.start_state = (1, 1)
         self.wall = (2, 2)
-        self.terminals = {(3, 4): 1.0, (2, 4): -1.0}
+        self.terminals = {(4, 3): 1.0, (4, 2): -1.0}
         self.default_reward = -0.04
 
         self.states = [
-            (r, c)
-            for r in range(1, self.rows + 1)
-            for c in range(1, self.cols + 1)
-            if (r, c) != self.wall
+            (x, y)
+            for x in range(1, self.x_max + 1)
+            for y in range(1, self.y_max + 1)
+            if (x, y) != self.wall
         ]
         self.non_terminal_states = [s for s in self.states if s not in self.terminals]
 
     def is_inside_grid(self, state):
-        row, col = state
-        return 1 <= row <= self.rows and 1 <= col <= self.cols
+        x, y = state
+        return 1 <= x <= self.x_max and 1 <= y <= self.y_max
 
     def is_wall(self, state):
         return state == self.wall
@@ -125,10 +126,10 @@ def fmt_state(state):
 
 def print_value_grid(mdp, values, title):
     print(title)
-    for row in range(mdp.rows, 0, -1):
+    for y in range(mdp.y_max, 0, -1):
         rendered = []
-        for col in range(1, mdp.cols + 1):
-            state = (row, col)
+        for x in range(1, mdp.x_max + 1):
+            state = (x, y)
             if state == mdp.wall:
                 rendered.append("  WALL  ")
             elif state in mdp.terminals:
@@ -142,10 +143,10 @@ def print_value_grid(mdp, values, title):
 def print_policy_grid(mdp, policy, title):
     arrow = {"N": "↑", "S": "↓", "E": "→", "W": "←", "T": "T"}
     print(title)
-    for row in range(mdp.rows, 0, -1):
+    for y in range(mdp.y_max, 0, -1):
         rendered = []
-        for col in range(1, mdp.cols + 1):
-            state = (row, col)
+        for x in range(1, mdp.x_max + 1):
+            state = (x, y)
             if state == mdp.wall:
                 rendered.append("WALL")
             else:
@@ -156,7 +157,7 @@ def print_policy_grid(mdp, policy, title):
 
 def print_task_outputs(mdp):
     print("=" * 72)
-    print("Problem 4.3 - Formulating an MDP")
+    print("Problem 4.4 - Formulating an MDP")
     print("=" * 72)
     print()
 
@@ -220,7 +221,7 @@ def print_task_outputs(mdp):
     policy = mdp.greedy_policy(values, gamma=1.0)
     print_policy_grid(mdp, policy, "Greedy policy from converged values")
     print("Caution states (near hazard -1): (2,3), (1,3), (3,3)")
-    print("Policy tends to avoid risky cells when stochastic slip can move into (2,4).")
+    print("Policy tends to avoid risky cells when stochastic slip can move into (4,2).")
 
 
 def main():
